@@ -1,27 +1,12 @@
-use serde::{Deserialize, Serialize};
-use std::fs;
+mod command;
+mod file_ops;
+mod task;
+
+use command::Command;
+use file_ops::{load_tasks_from_file, save_tasks_to_file};
 use std::io;
+use task::Task;
 
-// Task Struct
-#[derive(Serialize, Deserialize, Debug)]
-struct Task {
-    id: usize,
-    title: String,
-    completed: bool,
-}
-
-// Commands Enum
-enum Command {
-    Add(String),
-    View,
-    Complete(usize),
-    Delete(usize),
-    Save,
-    Load,
-    Exit,
-}
-
-// Function to process user commands
 fn process_command(command: Command, tasks: &mut Vec<Task>, id_counter: &mut usize) {
     match command {
         Command::Add(title) => {
@@ -72,23 +57,6 @@ fn process_command(command: Command, tasks: &mut Vec<Task>, id_counter: &mut usi
     }
 }
 
-// Save tasks to a file
-fn save_tasks_to_file(tasks: &Vec<Task>) -> Result<(), std::io::Error> {
-    let data = serde_json::to_string(tasks)?;
-    fs::write("tasks.json", data)?;
-    println!("Tasks saved!");
-    Ok(())
-}
-
-// Load tasks from a file
-fn load_tasks_from_file() -> Result<Vec<Task>, std::io::Error> {
-    let data = fs::read_to_string("tasks.json")?;
-    let tasks: Vec<Task> = serde_json::from_str(&data)?;
-    println!("Tasks loaded!");
-    Ok(tasks)
-}
-
-// Get user command
 fn get_user_command() -> Command {
     println!("Choose an action: Add, View, Complete, Delete, Save, Load, Exit");
     let mut input = String::new();
@@ -125,7 +93,6 @@ fn get_user_command() -> Command {
     }
 }
 
-// Main Function
 fn main() {
     let mut tasks: Vec<Task> = Vec::new();
     let mut id_counter = 1;
